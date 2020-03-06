@@ -1,10 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SalesWebMVC.Services;
 using SalesWebMVC.Models;
+using SalesWebMVC.Services.Exceptions;
 using SalesWebMVC.Models.ViewModels;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Console;
-
+using System.Collections.Generic;
 
 namespace SalesWebMVC.Controllers {
     public class SellersController : Controller {
@@ -65,5 +66,36 @@ namespace SalesWebMVC.Controllers {
             }
             return View(obj);
         }
+        public IActionResult Edit(int? id) {
+            if (id == null) {
+                return NotFound();
+            }
+
+            var obj = _sellerService.FindByID(id.Value);
+            if (obj == null) {
+                return NotFound();
+            }
+
+            List<Department> list = _departmentService.FindAll();
+            SellerFormViewModel viewModel = new SellerFormViewModel { Seller = obj, Departments = list };
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(int id, Seller seller) {
+            if (id != seller.Id) {
+                return BadRequest();
+            }
+            try {
+                _sellerService.Update(seller);
+                return RedirectToAction(nameof(Index));
+            } catch (NotFoundException) {
+                return NotFound();
+            } catch (DbConcurencyException) {
+                return BadRequest();
+            }
+        }
+
     }
 }
