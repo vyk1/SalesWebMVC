@@ -6,17 +6,25 @@ using System.Linq;
 namespace SalesWebMVC.Models {
     public class Seller {
         public int Id { get; set; }
+
+        [Required(ErrorMessage = "{0} required")]
+        [StringLength(60, MinimumLength = 3, ErrorMessage = "{0} size should be between {2} and {1}")]
         public String Name { get; set; }
 
         [DataType(DataType.EmailAddress)]
+        [Required(ErrorMessage = "{0} required")]
+        [EmailAddress(ErrorMessage = "Enter a valid email")]
         public String Email { get; set; }
 
         [Display(Name = "Birth Date")]
+        [Required(ErrorMessage = "{0} required")]
         [DataType(DataType.Date)]
         [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]
         public DateTime BirthDate { get; set; }
 
+        [Required(ErrorMessage = "{0} required")]
         [Display(Name = "Base Salary")]
+        [Range(100.0, 50000, ErrorMessage = "{0} size should be between {2} and {1}")]
         [DisplayFormat(DataFormatString = "{0:f2}")]
         public double BaseSalary { get; set; }
         public Department Department { get; set; }
