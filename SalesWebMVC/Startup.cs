@@ -14,6 +14,8 @@ using SalesWebMVC.Data;
 using SalesWebMVC.Services;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Console;
+using System.Globalization;
+using Microsoft.AspNetCore.Localization;
 
 namespace SalesWebMVC {
     public class Startup {
@@ -50,6 +52,16 @@ namespace SalesWebMVC {
         // seeding service aqui
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, SeedingService seedingService, ILoggerFactory loggerFactory) {
+
+            var enUs = new CultureInfo("en-US");
+            var localizationOptions = new RequestLocalizationOptions {
+                DefaultRequestCulture = new RequestCulture(enUs),
+                SupportedCultures = new List<CultureInfo> { enUs },
+                SupportedUICultures = new List<CultureInfo> { enUs }
+            };
+
+            app.UseRequestLocalization(localizationOptions);
+
             if (env.IsDevelopment()) {
                 app.UseDeveloperExceptionPage();
                 seedingService.Seed();
@@ -58,8 +70,7 @@ namespace SalesWebMVC {
 
                 var logger = loggerFactory.CreateLogger<ConsoleLogger>();
                 logger.LogInformation("Olá, aqui é o log!");
-            }
-            else {
+            } else {
                 app.UseExceptionHandler("/Home/Error");
                 app.UseHsts();
             }
