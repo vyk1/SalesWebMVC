@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SalesWebMVC.Data;
 using SalesWebMVC.Models;
@@ -15,34 +16,35 @@ namespace SalesWebMVC.Services {
             _context = context;
         }
 
-        public List<Seller> FindAll() {
-            return _context.Seller.ToList();
+        public async Task<List<Seller>> FindAllAsync() {
+            return await _context.Seller.ToListAsync();
         }
-        public void Insert(Seller seller) {
+        public async Task InsertAsync(Seller seller) {
             seller.Department = _context.Department.First();
             _context.Add(seller);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
-        public Seller FindByID(int id) {
+        public async Task<Seller> FindByIDAsync(int id) {
             // inclusão de eager loading
-            return _context.Seller.Include(obj => obj.Department).FirstOrDefault(obj => obj.Id == id);
+            return await _context.Seller.Include(obj => obj.Department).FirstOrDefaultAsync(obj => obj.Id == id);
         }
 
-        public void Remove(int id) {
-            var obj = _context.Seller.Find(id);
+        public async Task RemoveAsync(int id) {
+            var obj = await _context.Seller.FindAsync(id);
             _context.Seller.Remove(obj);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
-        public void Update(Seller seller) {
-            if (!_context.Seller.Any(x => x.Id == seller.Id)) {
+        public async Task UpdateAsync(Seller seller) {
+            bool hasAny = await _context.Seller.AnyAsync(x => x.Id == seller.Id);
+            if (!hasAny) {
                 throw new NotFoundException("Id not found");
             }
 
             try {
                 _context.Update(seller);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
                 //respeitando a arquitetura mvc
                 //exceções da camada de acesso a dados são capturadas pelo serviço e relancadas na forma de serviços pelo controlador
             } catch (DbConcurencyException e) {
