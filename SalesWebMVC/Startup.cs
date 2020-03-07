@@ -46,6 +46,8 @@ namespace SalesWebMVC {
             services.AddScoped<SellerService>();
             //mais um
             services.AddScoped<DepartmentService>();
+            //mais um
+            services.AddScoped<SalesRecordService>();
 
         }
 
